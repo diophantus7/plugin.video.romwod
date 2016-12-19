@@ -134,9 +134,9 @@ def list_dashboard(todays_video):
     search_item = xbmcgui.ListItem(label="Search...")
     IMG_PATH = os.path.join(ADDON_PATH, 'resources', 'media')
     search_item.setArt({'thumb':os.path.join(IMG_PATH, "searchicon.png")})
-    search_item.setArt({'thumb':"/home/stefan/search-icon5.png"})
     search_url = '{0}?action=search'.format(_url)
     listing.append((search_url, search_item, True))
+    
        
     for item in listing:
         item[1].setArt({'fanart':"https://optimize.romwod.com/core/uploads/072016v2-slide1.jpg?crop=left&fit=crop&h=1080&ixjsv=2.1.0&w=1920"})
