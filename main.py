@@ -111,20 +111,6 @@ def extract_videos_from_blocks(video_blocks):
     return videos
 
 
-#TODO this should be a class method from video right?
-def create_video_item(video):
-    list_item = xbmcgui.ListItem(label=video.title)
-    list_item.setInfo('video', {'title':video.title, 'duration': video.duration,
-                                'Plot': video.description})
-    list_item.setArt({'icon': video.thumbnail})
-    list_item.setProperty('IsPlayable', 'true')
-    list_item.setProperty('mimetype', 'video/x-msvideo') 
-    url = '{0}?action=play&video={1}'.format(_url,
-                                             urllib.quote(video.url_title))
-    is_folder = False    
-    return (url, list_item, is_folder)
-
-
 def list_dashboard(todays_video):
     todays_video_item = todays_video.get_list_item()
     todays_video_item[1].setLabel(label="Today's WOD | [I]%s[/I]"
@@ -146,7 +132,7 @@ def list_dashboard(todays_video):
     listing.append((poses_url, poses_item, True))
 
     search_item = xbmcgui.ListItem(label="Search...")
-    IMG_PATH = os.path.join(ADDON_PATH, 'resources')
+    IMG_PATH = os.path.join(ADDON_PATH, 'resources', 'media')
     search_item.setArt({'thumb':os.path.join(IMG_PATH, "searchicon.png")})
     search_item.setArt({'thumb':"/home/stefan/search-icon5.png"})
     search_url = '{0}?action=search'.format(_url)
