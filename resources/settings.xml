@@ -2,5 +2,4 @@
 <settings>
 	<setting id="username" type="text" label="Email or Username:" default="" enable="!eq(-1,false)"/>
 	<setting id="password" type="text" label="Password:" default="" option="hidden" enable="!eq(-2,false)"/>
-	<setting id="cookie_path" type="folder" label="Cookie path:" default="special://temp" />
 </settings>
