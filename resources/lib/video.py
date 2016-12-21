@@ -16,6 +16,7 @@ _IFRAME_URL = "http://fast.wistia.net/embed/iframe/%s"
     
 class Video:
 
+    #TODO this gets a video_block and then turns it into a string
     def __init__(self, video_block):
         bs = BeautifulSoup(str(video_block))
         self.title = bs.find('span',attrs={'class':'video-name'}).text
@@ -45,16 +46,19 @@ class Video:
     def _set_url_title(self):
         self.url_title = self.link.split('/')[-2]
     
+    
     def _get_video_id(self, downloader):
         video_page = downloader.get(self.link).content
         bs = BeautifulSoup(video_page)
         return re.search('wistia_async_([0-9a-z]*) ', str(bs)).group(1)
+
 
     def _get_video_url(self):
         json_data = self._download_json()
         # 12 is the number where the hashtag with the inspect element from ff
         # conincide
         return json_data['media']['unnamed_assets'][12]['url']
+    
     
     # returns a dict of the json data
     def _download_json(self):

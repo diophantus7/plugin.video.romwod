@@ -5,44 +5,37 @@
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
 import sys
-from urlparse import parse_qsl
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
+from urlparse import parse_qsl
 
 import requests
-#from gethtml import get_programming_url, get
-#import video
 import re
 import datetime
-import pickle
-
 import urllib
 import os
-
 
 try: 
         from BeautifulSoup import BeautifulSoup
 except ImportError:
         from bs4 import BeautifulSoup
 
-_url = sys.argv[0]
-_handle = int(sys.argv[1])
-
-
-_tmp_path = "special://temp"
-
 __addon__ = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
 
 ADDON_PATH = xbmc.translatePath(__addon__.getAddonInfo('path')).decode('utf-8')
+IMG_PATH = os.path.join(ADDON_PATH, 'resources', 'media')
 
 sys.path.append(os.path.join(ADDON_PATH, 'resources', 'lib'))
 from downloader import DownloadHandler
 from wistia import WistiaExtractor
 from parse import extract_video_blocks
 from video import Video
+from parse import extract_options
 
+_url = sys.argv[0]
+_handle = int(sys.argv[1])
 
 BASE_URL = "https://romwod.com/"
 WORKOUTS_URL = "https://romwod.com/workout/"
@@ -51,18 +44,13 @@ WOD_URL = "https://romwod.com/wod/"
 #TODO check for network error
 
 
-def notify(title, message):
-    xbmc.executebuiltin("XBMC.Notification(%s, %s)" % (title, message))
-
-
-def _initialize():
+def initialize():
     username = __addon__.getSetting('username')
     password = __addon__.getSetting('password')
     
     dh = DownloadHandler()
     week_view = dh.get(WOD_URL)
     
-    #TODO also use background images through fanart
     video_blocks = extract_video_blocks(week_view.content)
     video = Video(video_blocks[datetime.date.today().weekday()])
 
@@ -132,12 +120,15 @@ def list_dashboard(todays_video):
     listing.append((poses_url, poses_item, True))
 
     search_item = xbmcgui.ListItem(label="Search...")
-    IMG_PATH = os.path.join(ADDON_PATH, 'resources', 'media')
     search_item.setArt({'thumb':os.path.join(IMG_PATH, "searchicon.png")})
-    search_item.setArt({'thumb':"/home/stefan/search-icon5.png"})
     search_url = '{0}?action=search'.format(_url)
     listing.append((search_url, search_item, True))
-       
+    
+    select_item = xbmcgui.ListItem(label="Filter by...")
+    select_item.setArt({'thumb':os.path.join(IMG_PATH, "filtericon.png")})
+    select_url = '{0}?action=filter'.format(_url)
+    listing.append((select_url, select_item, True))
+    
     for item in listing:
         item[1].setArt({'fanart':"https://optimize.romwod.com/core/uploads/072016v2-slide1.jpg?crop=left&fit=crop&h=1080&ixjsv=2.1.0&w=1920"})
     
@@ -180,6 +171,28 @@ def search_func():
     list_wods('?' + urllib.urlencode(query))
 
 
+def select_func():
+    session = requests.session()
+    page = session.get(WORKOUTS_URL)
+    dialog = xbmcgui.Dialog()
+    options = extract_options(page.content)
+    xbmc.log(str(type(options)))
+    top_opts = [key for key in options]
+    selection = {}
+    for key in options:
+        opt = [x[0] for x in options[key]]
+        selection[key] = dialog.select(key, opt)
+
+    query = {}
+    for key in options:
+        if selection[key] is not -1:
+            opt = options[key][selection[key]]
+            query[opt[1]] = opt[0].replace(' ', '-')
+    #xbmc.log(urllib.urlencode(query))
+
+    list_wods('?' + urllib.urlencode(query))
+
+
 def router(paramstring):
     """
     This function routes the paramstring to the
@@ -195,8 +208,10 @@ def router(paramstring):
             play_video(params['video'])
         if params['action'] == 'search':
             search_func()
+        if params['action'] == 'filter':
+            select_func()
     else:
-        _initialize()
+        initialize()
 
 
 if __name__ == '__main__':
