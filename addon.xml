@@ -10,7 +10,7 @@ provider-name="stef_schmid">
   <provides>video</provides>
 </extension>
 <extension point="xbmc.addon.metadata">
-  <summary lang="en">ROMWOD</summary>
+  <summary lang="en">Watch ROMWOD videos on kodi</summary>
   <description lang="en">OPTIMIZE RANGE OF MOTION. Daily online Yin stretching routines for athletes. Based on ancient Kung Fu techniques that strengthen and open joints resulting in optimal range of motion.
   </description>
   <!--<disclaimer lang="en">Free sample videos are provided by www.vidsplay.com.</disclaimer>-->

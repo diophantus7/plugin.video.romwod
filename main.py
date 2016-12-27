@@ -16,11 +16,6 @@ import datetime
 import urllib
 import os
 
-try: 
-        from BeautifulSoup import BeautifulSoup
-except ImportError:
-        from bs4 import BeautifulSoup
-
 __addon__ = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
 
@@ -33,6 +28,7 @@ from wistia import WistiaExtractor
 from parse import extract_video_blocks
 from video import Video
 from parse import extract_options
+from utils import next_page
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
@@ -45,9 +41,12 @@ WOD_URL = "https://romwod.com/wod/"
 
 
 def initialize():
-    username = __addon__.getSetting('username')
-    password = __addon__.getSetting('password')
+    """
+    This function is called upon the first call of the plugin.
+    It signs in to the site via the DownloadHandler, and then
+    lists the content of the dashboard.
     
+    """
     dh = DownloadHandler()
     week_view = dh.get(WOD_URL)
     
@@ -55,18 +54,14 @@ def initialize():
     video = Video(video_blocks[datetime.date.today().weekday()])
 
     list_dashboard(video)
-  
-
-def next_page(site):
-    bs = BeautifulSoup(site)
-    next = bs.find('a', attrs={'class':'nextpostslink'})
-    if next:
-        return next['href']
-    else:
-        return None
 
 
 def list_wods(params):
+    """
+    Lists all the videos found on the website BASE_URL + params.
+    
+    :param params: str
+    """
     downloader = DownloadHandler()
   
     url = BASE_URL + params
@@ -82,7 +77,7 @@ def list_wods(params):
     
     next = next_page(video_listing.content)
     if next is not None:
-        next_page_item = xbmcgui.ListItem(label="NEXT PAGE")
+        next_page_item = xbmcgui.ListItem(label="NEXT PAGE >>>")
         url = '{0}?action=list&selection={1}'.format(_url,
                                                      next[len(BASE_URL):])
         listing.append((url, next_page_item, True))
@@ -92,6 +87,12 @@ def list_wods(params):
 
 
 def extract_videos_from_blocks(video_blocks):
+    """
+    Extracts each html video block and instanciates
+    a Video for it. Returns all videos in a list.
+    
+    :param video_blocks: str
+    """
     videos = []
     for vid_blk in video_blocks:
         video = Video(vid_blk)
@@ -100,6 +101,12 @@ def extract_videos_from_blocks(video_blocks):
 
 
 def list_dashboard(todays_video):
+    """
+    List the content of the dashboard as on romwod.com/wod/.
+    Takes today's routine and lists it as first entry.
+    
+    :param todays_video: Video
+    """
     todays_video_item = todays_video.get_list_item()
     todays_video_item[1].setLabel(label="Today's WOD | [I]%s[/I]"
                                   % todays_video.title)
@@ -137,6 +144,11 @@ def list_dashboard(todays_video):
 
 
 def resolve(title):
+    """
+    Resolves the video to its url. Just needs the
+    title of the video as in the url. See play_video
+    :param title: str
+    """
     downloader = DownloadHandler()
     
     link = WORKOUTS_URL + urllib.unquote(title)
@@ -146,13 +158,16 @@ def resolve(title):
     return we.get_video_url()
 
 
-def play_video(name):
+def play_video(title):
     """
-    Plays a video after resolving the URL.
+    Plays a video after resolving the URL. It takes the title
+    of the video as it is called in the url of the video.
+    E.g. for the video on romwod.com/workout/video-title it
+    is video-title
 
-    :param path: str
+    :param title: str
     """
-    path = resolve(name)
+    path = resolve(title)
     play_item = xbmcgui.ListItem(path=path)
     xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
 
@@ -169,9 +184,16 @@ def search_func():
                                  type=xbmcgui.INPUT_ALPHANUM)
     query = {'s':search_string, 'post_type':'workouts'}
     list_wods('?' + urllib.urlencode(query))
+    #TODO save search strings in a history
 
 
 def select_func():
+    """
+    This filters videos. It asks the user for the purpose
+    and/or a body part and then lists the videos it finds
+    with the user's selection
+    
+    """
     session = requests.session()
     page = session.get(WORKOUTS_URL)
     dialog = xbmcgui.Dialog()
@@ -198,7 +220,7 @@ def router(paramstring):
     This function routes the paramstring to the
     right function
 
-    :param paramstring:
+    :param paramstring: str
     """
     params = dict(parse_qsl(paramstring))
     if params:

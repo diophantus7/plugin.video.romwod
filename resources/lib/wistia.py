@@ -1,20 +1,21 @@
 import re
-
-from BeautifulSoup import BeautifulSoup
 import requests
+
+try: 
+        from BeautifulSoup import BeautifulSoup
+except ImportError:
+        from bs4 import BeautifulSoup
 
 
 _JSON_URL = "http://fast.wistia.com/embed/medias/%s.json"
 _IFRAME_URL = "http://fast.wistia.net/embed/iframe/%s"
+
 
 class WistiaExtractor:
     
     def __init__(self, html_page):
         self.html_page = html_page
         self.video_id = self._extract_video_id()
-        
-    def get_video_url(self):
-        return
     
         
     def _extract_video_id(self):
@@ -31,4 +32,6 @@ class WistiaExtractor:
     
     def get_video_url(self):
         json_data = self._download_json()
-        return json_data['media']['unnamed_assets'][12]['url']
+        #return json_data['media']['unnamed_assets'][12]['url']
+        return next(d['url'] for d in json_data['media']['unnamed_assets']
+                    if 'opt_vbitrate' in d and d['opt_vbitrate'] == 5625)
