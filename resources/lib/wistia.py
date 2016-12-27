@@ -13,9 +13,10 @@ _IFRAME_URL = "http://fast.wistia.net/embed/iframe/%s"
 
 class WistiaExtractor:
     
-    def __init__(self, html_page):
+    def __init__(self, html_page, format):
         self.html_page = html_page
         self.video_id = self._extract_video_id()
+        self._format = format
     
         
     def _extract_video_id(self):
@@ -33,5 +34,6 @@ class WistiaExtractor:
     def get_video_url(self):
         json_data = self._download_json()
         #return json_data['media']['unnamed_assets'][12]['url']
+        xbmc.log(json_data['media']['unnamed_assets'][12]['url'])
         return next(d['url'] for d in json_data['media']['unnamed_assets']
-                    if 'opt_vbitrate' in d and d['opt_vbitrate'] == 5625)
+                    if d['display_name'] == self._format and d['ext'] == 'm3u8')

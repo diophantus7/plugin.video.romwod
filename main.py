@@ -25,9 +25,9 @@ IMG_PATH = os.path.join(ADDON_PATH, 'resources', 'media')
 sys.path.append(os.path.join(ADDON_PATH, 'resources', 'lib'))
 from downloader import DownloadHandler
 from wistia import WistiaExtractor
-from parse import extract_video_blocks
+from utils import extract_video_blocks
 from video import Video
-from parse import extract_options
+from utils import extract_options
 from utils import next_page
 
 _url = sys.argv[0]
@@ -111,17 +111,17 @@ def list_dashboard(todays_video):
     todays_video_item[1].setLabel(label="Today's WOD | [I]%s[/I]"
                                   % todays_video.title)
     listing = [todays_video_item]
-    programming_item = xbmcgui.ListItem(label="Daily programming")
+    programming_item = xbmcgui.ListItem(label="Daily Programming")
     programming_item.setArt({'thumb':"https://optimize.romwod.com/core/uploads/dash-dailyprogramming.jpg"})
     programming_url = '{0}?action=list&selection={1}'.format(_url, "wod")
     listing.append((programming_url, programming_item, True))
     
-    all_item = xbmcgui.ListItem(label="All workouts")
+    all_item = xbmcgui.ListItem(label="All Workouts")
     all_item.setArt({'thumb':"https://optimize.romwod.com/core/uploads/dash-romyourway.jpg"})
     all_url = '{0}?action=list&selection={1}'.format(_url, "workouts")
     listing.append((all_url, all_item, True))
     
-    poses_item = xbmcgui.ListItem(label="LEARN THE POSES")
+    poses_item = xbmcgui.ListItem(label="Learn The Poses")
     poses_item.setArt({'thumb':"https://optimize.romwod.com/core/uploads/dash-learnposes.jpg"})
     poses_url = '{0}?action=list&selection={1}'.format(_url, "type/learn-poses/")
     listing.append((poses_url, poses_item, True))
@@ -143,6 +143,10 @@ def list_dashboard(todays_video):
     xbmcplugin.endOfDirectory(_handle)
 
 
+def get_format():
+    return __addon__.getSetting('video_format')
+
+
 def resolve(title):
     """
     Resolves the video to its url. Just needs the
@@ -154,7 +158,7 @@ def resolve(title):
     link = WORKOUTS_URL + urllib.unquote(title)
     video_page = downloader.get(link).content
 
-    we = WistiaExtractor(video_page)
+    we = WistiaExtractor(video_page, get_format())
     return we.get_video_url()
 
 
