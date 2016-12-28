@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.romwod"
-version="0.2.2"
+version="0.2.3"
 name="ROMWOD"
 provider-name="stef_schmid">
 <requires>
