@@ -34,6 +34,13 @@ class WistiaExtractor:
     def get_video_url(self):
         json_data = self._download_json()
         #return json_data['media']['unnamed_assets'][12]['url']
-        xbmc.log(json_data['media']['unnamed_assets'][12]['url'])
-        return next(d['url'] for d in json_data['media']['unnamed_assets']
+        import xbmc
+        try:
+            url = next(d['url'] for d in json_data['media']['unnamed_assets']
                     if d['display_name'] == self._format and d['ext'] == 'm3u8')
+        except:
+            url = next(d['url'] for d in json_data['media']['unnamed_assets']
+                       if d['status'] == 2 and 'opt_vbitrate' in d and
+                       d['opt_vbitrate'] >= 3750)
+            xbmc.log("Fallback to url: %s" % url)
+        return url

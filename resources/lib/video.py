@@ -2,6 +2,7 @@ import sys
 import urllib
 import re
 import xbmcgui
+import html
 
 try: 
         from BeautifulSoup import BeautifulSoup
@@ -15,7 +16,8 @@ _handle = int(sys.argv[1])
 class Video:
 
     def __init__(self, video_block):
-        bs = BeautifulSoup(str(video_block))
+        bs = BeautifulSoup(str(video_block),
+                           convertEntities=BeautifulSoup.HTML_ENTITIES)
         self.title = bs.find('span',attrs={'class':'video-name'}).text
         self.duration = bs.find('div',attrs={'class':'video-duration'}).text
         self.description = bs.find('p',attrs={'class':'video-description'}).text
