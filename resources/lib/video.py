@@ -37,7 +37,7 @@ class Video:
         list_item.setInfo('video', {'title': self.title,
                                     'duration': self.duration,
                                     'Plot': self.description})
-        list_item.setArt({'icon': self.thumbnail})
+        list_item.setArt({'thumb': self.thumbnail})
         list_item.setProperty('IsPlayable', 'true')
         list_item.setProperty('mimetype', 'video/x-msvideo') 
         url = '{0}?action=play&video={1}'.format(_url,

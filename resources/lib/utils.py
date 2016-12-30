@@ -45,7 +45,8 @@ def extract_options(site):
     node = form.div.ul.li
     opt_dict = OrderedDict()
     while node.h4 is not None:
-        opt_dict[node.h4.text] = [(x.text, x.input['name'][2:-2]) for x in node.findAll('li')]
+        opt_dict[node.h4.text] = [(x.text, x.input['name'][2:-2])
+                                  for x in node.findAll('li')]
         node = node.nextSibling
     return opt_dict
 

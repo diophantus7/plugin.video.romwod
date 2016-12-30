@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Module: main
-# Author: Stefan
+# Author: diophantus7
 # Created on: December 2nd, 2016
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
@@ -25,17 +25,18 @@ IMG_PATH = os.path.join(ADDON_PATH, 'resources', 'media')
 sys.path.append(os.path.join(ADDON_PATH, 'resources', 'lib'))
 from downloader import DownloadHandler
 from wistia import WistiaExtractor
-from utils import extract_video_blocks
 from video import Video
-from utils import extract_options
-from utils import next_page
+from utils import (extract_video_blocks,
+                   extract_options,
+                   next_page)
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 BASE_URL = "https://romwod.com/"
-WORKOUTS_URL = "https://romwod.com/workout/"
-WOD_URL = "https://romwod.com/wod/"
+WORKOUTS_URL = BASE_URL + "workout/"
+WOD_URL = BASE_URL + "wod/"
+DASHBOARD_URL = BASE_URL + "dashboard/"
 
 #TODO check for network error
 
@@ -99,6 +100,54 @@ def extract_videos_from_blocks(video_blocks):
         videos.append(video)
     return videos
 
+FANART_BASE = 'https://optimize.romwod.com/core/themes/FLUXX-ROMWOD/images/'
+HD_CROP = "?crop=left&fit=crop&h=1080&ixjsv=2.1.0&w=1920"
+
+def get_daytime():
+    now = datetime.datetime.now()
+    midnight = now.replace(hour=00, minute=0, second=0, microsecond=0)
+    noon = now.replace(hour=12, minute=0, second=0, microsecond=0)
+    time5pm = now.replace(hour=17, minute=0, second=0, microsecond=0)
+    if midnight <= now < noon:
+        return 'morning'
+    elif noon <= now < time5pm:
+        return 'afternoon'
+    elif time5pm <= now:
+        return 'evening'
+
+
+def get_dashboard_fanart():
+    fanart = FANART_BASE + 'dash-bg-' + get_daytime() + '.jpg'
+    xbmc.log(fanart)
+    return fanart
+
+
+def get_dashboard_item(option_block):
+    item = xbmcgui.ListItem(label=option_block.h3.text)
+    item.setArt({'thumb':option_block.img.get('src')})
+    item_url = '{0}?action=list&selection={1}'.format(_url,
+                                        option_block.a.get('href').strip('/'))
+    isFolder = True
+    return (item_url, item, isFolder)
+
+
+def get_dashboard_items():
+    from BeautifulSoup import BeautifulSoup
+    session = requests.session()
+    db = session.get(DASHBOARD_URL)
+    bs = BeautifulSoup(db.content)
+    db_options = bs.find('div',
+                         {'class':'container','id':'dash-options'}).findAll(
+                             'div', {'class':re.compile('dash-option\s')})
+
+    listing = []
+    
+    for option in db_options:
+        listing.append(get_dashboard_item(option))
+    
+    return listing
+    
+
 
 def list_dashboard(todays_video):
     """
@@ -110,22 +159,9 @@ def list_dashboard(todays_video):
     todays_video_item = todays_video.get_list_item()
     todays_video_item[1].setLabel(label="Today's WOD | [I]%s[/I]"
                                   % todays_video.title)
-    listing = [todays_video_item]
-    programming_item = xbmcgui.ListItem(label="Daily Programming")
-    programming_item.setArt({'thumb':"https://optimize.romwod.com/core/uploads/dash-dailyprogramming.jpg"})
-    programming_url = '{0}?action=list&selection={1}'.format(_url, "wod")
-    listing.append((programming_url, programming_item, True))
+    listing = [todays_video_item]    
+    listing.extend(get_dashboard_items())
     
-    all_item = xbmcgui.ListItem(label="All Workouts")
-    all_item.setArt({'thumb':"https://optimize.romwod.com/core/uploads/dash-romyourway.jpg"})
-    all_url = '{0}?action=list&selection={1}'.format(_url, "workouts")
-    listing.append((all_url, all_item, True))
-    
-    poses_item = xbmcgui.ListItem(label="Learn The Poses")
-    poses_item.setArt({'thumb':"https://optimize.romwod.com/core/uploads/dash-learnposes.jpg"})
-    poses_url = '{0}?action=list&selection={1}'.format(_url, "type/learn-poses/")
-    listing.append((poses_url, poses_item, True))
-
     search_item = xbmcgui.ListItem(label="Search...")
     search_item.setArt({'thumb':os.path.join(IMG_PATH, "searchicon.png")})
     search_url = '{0}?action=search'.format(_url)
@@ -137,7 +173,7 @@ def list_dashboard(todays_video):
     listing.append((select_url, select_item, True))
     
     for item in listing:
-        item[1].setArt({'fanart':"https://optimize.romwod.com/core/uploads/072016v2-slide1.jpg?crop=left&fit=crop&h=1080&ixjsv=2.1.0&w=1920"})
+        item[1].setArt({'fanart':get_dashboard_fanart() + HD_CROP})
     
     xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
     xbmcplugin.endOfDirectory(_handle)
