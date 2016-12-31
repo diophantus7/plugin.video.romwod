@@ -224,7 +224,7 @@ def search_func():
                                  type=xbmcgui.INPUT_ALPHANUM)
     query = {'s':search_string, 'post_type':'workouts'}
     list_wods('?' + urllib.urlencode(query))
-    #TODO save search strings in a history
+    #TODO save search strings to history
 
 
 def select_func():
@@ -265,7 +265,7 @@ def router(paramstring):
     params = dict(parse_qsl(paramstring))
     if params:
         if params['action'] == 'list':
-             list_wods(params['selection'])
+            list_wods(params['selection'])
         if params['action'] == 'play':
             play_video(params['video'])
         if params['action'] == 'search':
