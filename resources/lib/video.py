@@ -2,7 +2,6 @@ import sys
 import urllib
 import re
 import xbmcgui
-import html
 
 try: 
         from BeautifulSoup import BeautifulSoup
