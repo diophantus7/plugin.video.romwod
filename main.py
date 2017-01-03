@@ -29,6 +29,7 @@ from video import Video
 from utils import (extract_video_blocks,
                    extract_options,
                    next_page)
+from item import FolderItem
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
@@ -37,6 +38,10 @@ BASE_URL = "https://romwod.com/"
 WORKOUTS_URL = BASE_URL + "workout/"
 WOD_URL = BASE_URL + "wod/"
 DASHBOARD_URL = BASE_URL + "dashboard/"
+
+NEXT_PAGE_LABEL = "NEXT PAGE >>>"
+SEARCH = "Search..."
+FILTER = "Filter by..."
 
 #TODO check for network error
 
@@ -78,10 +83,10 @@ def list_wods(params):
     
     next = next_page(video_listing.content)
     if next is not None:
-        next_page_item = xbmcgui.ListItem(label="NEXT PAGE >>>")
-        url = '{0}?action=list&selection={1}'.format(_url,
-                                                     next[len(BASE_URL):])
-        listing.append((url, next_page_item, True))
+        listing.append(FolderItem(NEXT_PAGE_LABEL,
+                                  {'action':'list',
+                                   'selection':next[len(BASE_URL):]}
+                                  ).get_item())
 
     xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
     xbmcplugin.endOfDirectory(_handle)
@@ -123,12 +128,10 @@ def get_dashboard_fanart():
 
 
 def get_dashboard_item(option_block):
-    item = xbmcgui.ListItem(label=option_block.h3.text)
-    item.setArt({'thumb':option_block.img.get('src')})
-    item_url = '{0}?action=list&selection={1}'.format(_url,
-                                        option_block.a.get('href').strip('/'))
-    isFolder = True
-    return (item_url, item, isFolder)
+    return FolderItem(option_block.h3.text, 
+                        {'action':'list',
+                        'selection':option_block.a.get('href').strip('/')},
+                        option_block.img.get('src')).get_item()
 
 
 def get_dashboard_items():
@@ -162,15 +165,15 @@ def list_dashboard(todays_video):
     listing = [todays_video_item]    
     listing.extend(get_dashboard_items())
     
-    search_item = xbmcgui.ListItem(label="Search...")
-    search_item.setArt({'thumb':os.path.join(IMG_PATH, "searchicon.png")})
-    search_url = '{0}?action=search'.format(_url)
-    listing.append((search_url, search_item, True))
-    
-    select_item = xbmcgui.ListItem(label="Filter by...")
-    select_item.setArt({'thumb':os.path.join(IMG_PATH, "filtericon.png")})
-    select_url = '{0}?action=filter'.format(_url)
-    listing.append((select_url, select_item, True))
+    listing.append(FolderItem(SEARCH, 
+                              {'action':'search'},
+                              os.path.join(IMG_PATH,
+                                           "searchicon.png")).get_item())
+        
+    listing.append(FolderItem(FILTER, 
+                              {'action':'filter'},
+                              os.path.join(IMG_PATH,
+                                           "filtericon.png")).get_item())
     
     for item in listing:
         item[1].setArt({'fanart':get_dashboard_fanart() + HD_CROP})
