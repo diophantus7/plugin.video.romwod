@@ -1,5 +1,6 @@
 import re
 import requests
+import xbmc
 
 try: 
         from BeautifulSoup import BeautifulSoup
@@ -10,6 +11,11 @@ except ImportError:
 _JSON_URL = "http://fast.wistia.com/embed/medias/%s.json"
 _IFRAME_URL = "http://fast.wistia.net/embed/iframe/%s"
 
+
+class ResolveError(Exception):
+    def __init__(self, message):
+        self.message = message
+        
 
 class WistiaExtractor:
     
@@ -33,14 +39,17 @@ class WistiaExtractor:
     
     def get_video_url(self):
         json_data = self._download_json()
-        #return json_data['media']['unnamed_assets'][12]['url']
-        import xbmc
         try:
             url = next(d['url'] for d in json_data['media']['unnamed_assets']
                     if d['display_name'] == self._format and d['ext'] == 'm3u8')
         except:
-            url = next(d['url'] for d in json_data['media']['unnamed_assets']
-                       if d['status'] == 2 and 'opt_vbitrate' in d and
-                       d['opt_vbitrate'] >= 3750)
+            video_data = [d for d in json_data['media']['unnamed_assets']
+                         if d['status'] == 2 and 'opt_vbitrate' in d
+                         and 'display_name' in d and
+                         'p' in d['display_name']]
+            if not video_data:
+                raise ResolveError("No video found.")
+            url = max(video_data,
+                      key=lambda d: int(d['display_name'].strip('p')))['url']
             xbmc.log("Fallback to url: %s" % url)
         return url

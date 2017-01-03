@@ -195,7 +195,11 @@ def resolve(title):
     video_page = downloader.get(link).content
 
     we = WistiaExtractor(video_page, get_format())
-    return we.get_video_url()
+    try:
+        return we.get_video_url()
+    except ResolveError as err:
+        xbmc.log(err.message)
+        sys.exit()
 
 
 def play_video(title):
@@ -208,6 +212,8 @@ def play_video(title):
     :param title: str
     """
     path = resolve(title)
+    xbmc.log(title)
+    xbmc.log(path)
     play_item = xbmcgui.ListItem(path=path)
     xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
 
