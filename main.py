@@ -43,6 +43,9 @@ NEXT_PAGE_LABEL = "NEXT PAGE >>>"
 SEARCH = "Search..."
 FILTER = "Filter by..."
 
+FANART_BASE = 'https://optimize.romwod.com/core/themes/FLUXX-ROMWOD/images/'
+HD_CROP = "?crop=left&fit=crop&h=1080&ixjsv=2.1.0&w=1920"
+
 #TODO check for network error
 
 
@@ -105,8 +108,6 @@ def extract_videos_from_blocks(video_blocks):
         videos.append(video)
     return videos
 
-FANART_BASE = 'https://optimize.romwod.com/core/themes/FLUXX-ROMWOD/images/'
-HD_CROP = "?crop=left&fit=crop&h=1080&ixjsv=2.1.0&w=1920"
 
 def get_daytime():
     now = datetime.datetime.now()

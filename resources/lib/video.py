@@ -11,6 +11,7 @@ except ImportError:
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
+POSTER_CROP = "?crop=middle&fit=crop&h=1345&ixjsv=2.1.0&w=900"
     
 class Video:
 
@@ -35,15 +36,20 @@ class Video:
         list_item = xbmcgui.ListItem(label=self.title)
         list_item.setInfo('video', {'title': self.title,
                                     'duration': self.duration,
-                                    'Plot': self.description})
-        list_item.setArt({'thumb': self.thumbnail})
+                                    'Plot': self.description + self._get_tags()})
+        list_item.setArt({'icon': self.thumbnail})
         list_item.setProperty('IsPlayable', 'true')
         list_item.setProperty('mimetype', 'video/x-msvideo') 
         url = '{0}?action=play&video={1}'.format(_url,
                                                  urllib.quote(self.url_title))
         is_folder = False    
         return (url, list_item, is_folder)    
-        
+    
+    
+    def _get_tags(self):
+        return "[CR]" + ' | '.join(["[LIGHT][I]" + tag
+                                    + "[/I][/LIGHT]" for tag in self.tags])
+    
     
     def _set_url_title(self):
         """
