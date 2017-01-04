@@ -15,6 +15,7 @@ import re
 import datetime
 import urllib
 import os
+from BeautifulSoup import BeautifulSoup
 
 __addon__ = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -38,10 +39,12 @@ BASE_URL = "https://romwod.com/"
 WORKOUTS_URL = BASE_URL + "workout/"
 WOD_URL = BASE_URL + "wod/"
 DASHBOARD_URL = BASE_URL + "dashboard/"
+SCHEDULE_URL = BASE_URL + "all-wods/"
 
 NEXT_PAGE_LABEL = "NEXT PAGE >>>"
 SEARCH = "Search..."
 FILTER = "Filter by..."
+PAST_WODS = "WOD Schedule"
 
 FANART_BASE = 'https://optimize.romwod.com/core/themes/FLUXX-ROMWOD/images/'
 HD_CROP = "?crop=left&fit=crop&h=1080&ixjsv=2.1.0&w=1920"
@@ -165,12 +168,13 @@ def list_dashboard(todays_video):
                                   % todays_video.title)
     listing = [todays_video_item]    
     listing.extend(get_dashboard_items())
-    
+        
+    listing.append(FolderItem(PAST_WODS, 
+                              {'action':'list-schedule'}).get_item())
     listing.append(FolderItem(SEARCH, 
                               {'action':'search'},
                               os.path.join(IMG_PATH,
                                            "searchicon.png")).get_item())
-        
     listing.append(FolderItem(FILTER, 
                               {'action':'filter'},
                               os.path.join(IMG_PATH,
@@ -265,6 +269,23 @@ def select_func():
     list_wods('?' + urllib.urlencode(query))
 
 
+def list_wod_schedule():
+    session = requests.session()
+    page = session.get(SCHEDULE_URL)
+    bs = BeautifulSoup(page.content,
+                       convertEntities=BeautifulSoup.HTML_ENTITIES)
+    listing = []
+    for week in bs.findAll('a', {'class':'past-wod'}):
+        listing.append(FolderItem(week.text,
+                                  {'action':'list',
+                                   'selection':week.get('href')[len(BASE_URL):-1]},
+                                  "https://optimize.romwod.com/core/themes/FLUXX-ROMWOD/images/members-titlebar-bg17.jpg?crop=middle&fit=crop&h=256&ixjsv=2.1.0&w=256"
+                                  ).get_item())
+    
+    xbmcplugin.addDirectoryItems(_handle, listing, len(listing))
+    xbmcplugin.endOfDirectory(_handle)
+
+
 def router(paramstring):
     """
     This function routes the paramstring to the
@@ -276,6 +297,8 @@ def router(paramstring):
     if params:
         if params['action'] == 'list':
             list_wods(params['selection'])
+        if params['action'] == 'list-schedule':
+            list_wod_schedule()
         if params['action'] == 'play':
             play_video(params['video'])
         if params['action'] == 'search':
