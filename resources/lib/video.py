@@ -42,7 +42,7 @@ class Video:
         list_item.setProperty('mimetype', 'video/x-msvideo') 
         url = '{0}?action=play&video={1}'.format(_url,
                                                  urllib.quote(self.url_title))
-        is_folder = False    
+        is_folder = False
         return (url, list_item, is_folder)    
     
     

@@ -41,7 +41,8 @@ def extract_options(site):
     
     :param site: str
     """
-    form = BeautifulSoup(extract_selection_form(site))
+    form = BeautifulSoup(extract_selection_form(site),
+                         convertEntities=BeautifulSoup.HTML_ENTITIES)
     node = form.div.ul.li
     opt_dict = OrderedDict()
     while node.h4 is not None:
