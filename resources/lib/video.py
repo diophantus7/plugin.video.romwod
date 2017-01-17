@@ -14,7 +14,7 @@ class Video:
     def __init__(self, video_block):
         bs = BeautifulSoup(str(video_block),
                            convertEntities=BeautifulSoup.HTML_ENTITIES)
-        self.title = bs.find('span',attrs={'class':'video-name'}).text
+        self.title = unicode(bs.find('span',attrs={'class':'video-name'}).text)
         self.duration = bs.find('div',attrs={'class':'video-duration'}).text
         self.description = bs.find('p',attrs={'class':'video-description'}).text
         vid_tags = bs.findAll('li')
@@ -23,26 +23,7 @@ class Video:
         self.thumbnail = video_block.img.get('data-src')
 
     
-    def get_list_item(self):
-        """
-        Returns the xbmcgui.Listitem for the video
-        
-        """
-        list_item = xbmcgui.ListItem(label=self.title)
-        list_item.setInfo('video', {'title': self.title,
-                                    'duration': self.duration,
-                                    'Plot': self.description + self._get_tags()})
-        list_item.setArt({'icon': self.thumbnail})
-        list_item.setProperty('IsPlayable', 'true')
-        list_item.setProperty('mimetype', 'video/x-msvideo')
-        from pluginhandler import PluginHandler
-        ph = PluginHandler()
-        url = ph.http_to_plugin_url(self.link)
-        is_folder = False
-        return (url, list_item, is_folder)    
-    
-    
-    def _get_tags(self):
+    def get_tags(self):
         return "[CR]" + ' | '.join(["[LIGHT][I]" + tag
                                     + "[/I][/LIGHT]" for tag in self.tags])
     

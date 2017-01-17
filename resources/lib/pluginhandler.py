@@ -138,7 +138,14 @@ class PluginHandler(object):
         
         listing = []
         for video in videos:
-            listing.append(video.get_list_item())
+            listing.append(VideoItem(video))
+#             item = xbmcgui.ListItem(label=video.title)
+#             item.setProperty(u'IsPlayable', u'true')
+#             xbmcplugin.addDirectoryItem(handle=self._handle,
+#                                         url=str(self.http_to_plugin_url(video.link)),
+#                                         #url=u'plugin://plugin.video.romwod/workout/timber/',
+#                                         listitem=item,
+#                                         isFolder=False)
         
         next = page.next_page()
         if next is not None:

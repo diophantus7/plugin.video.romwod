@@ -8,6 +8,22 @@ import xbmc
 CLEAR_HISTORY = "Clear History"
 REMOVE_ENTRY = "Remove entry"
 
+class VideoItem(tuple):
+    
+    def __new__(cls, video):
+        item = xbmcgui.ListItem(label=video.title)
+        item.setInfo('video', {'title': video.title,
+                                    'duration': video.duration,
+                                    'Plot': video.description + video.get_tags()})
+        item.setArt({'thumb': video.thumbnail})
+        item.setProperty('IsPlayable', 'true')
+        #list_item.setProperty('mimetype', 'video/x-msvideo')
+        from pluginhandler import PluginHandler
+        ph = PluginHandler()
+        url = ph.http_to_plugin_url(video.link)
+        return tuple.__new__(cls, (url, item, False))
+
+
 class FolderItem(tuple):
     
     def __new__(cls, label, url, thumb = None):
