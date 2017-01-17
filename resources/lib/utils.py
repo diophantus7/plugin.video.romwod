@@ -1,5 +1,6 @@
 import xbmc
 import re
+import datetime
 from collections import OrderedDict
 
 try: 
@@ -7,21 +8,6 @@ try:
 except ImportError:
         from bs4 import BeautifulSoup
 
-
-def notify(title, message):
-    xbmc.executebuiltin("XBMC.Notification(%s, %s)" % (title, message))
-
-
-def extract_video_blocks(html):
-    """
-    Extracts the video block from the html code as used on
-    the romwod site
-    
-    :param html: str
-    """
-    parsed_html = BeautifulSoup(html)
-    return parsed_html.body.findAll('div',
-                                attrs={'class':re.compile(r"video-block\s.*")})
 
 def extract_selection_form(site):
     """
@@ -51,20 +37,17 @@ def extract_options(site):
         node = node.nextSibling
     return opt_dict
 
-
-def next_page(site):
-    """
-    Checks if the content listed on the webpage goes on for
-    several pages.
-    If this is the case, the next page is returned,
-    otherwise None.
     
-    :param site: str
-    """
-    bs = BeautifulSoup(site)
-    next = bs.find('a', attrs={'class':'nextpostslink'})
-    if next:
-        return next['href']
-    else:
-        return None
+def get_daytime():
+    now = datetime.datetime.now()
+    midnight = now.replace(hour=00, minute=0, second=0, microsecond=0)
+    noon = now.replace(hour=12, minute=0, second=0, microsecond=0)
+    time5pm = now.replace(hour=17, minute=0, second=0, microsecond=0)
+    if midnight <= now < noon:
+        return 'morning'
+    elif noon <= now < time5pm:
+        return 'afternoon'
+    elif time5pm <= now:
+        return 'evening'
+    
     

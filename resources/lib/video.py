@@ -7,11 +7,7 @@ try:
         from BeautifulSoup import BeautifulSoup
 except ImportError:
         from bs4 import BeautifulSoup
-
-_url = sys.argv[0]
-_handle = int(sys.argv[1])
-
-POSTER_CROP = "?crop=middle&fit=crop&h=1345&ixjsv=2.1.0&w=900"
+        
     
 class Video:
 
@@ -25,7 +21,6 @@ class Video:
         self.tags = [tag.text for tag in vid_tags]
         self.link = video_block.a.get('href')
         self.thumbnail = video_block.img.get('data-src')
-        self._set_url_title()
 
     
     def get_list_item(self):
@@ -39,9 +34,10 @@ class Video:
                                     'Plot': self.description + self._get_tags()})
         list_item.setArt({'icon': self.thumbnail})
         list_item.setProperty('IsPlayable', 'true')
-        list_item.setProperty('mimetype', 'video/x-msvideo') 
-        url = '{0}?action=play&video={1}'.format(_url,
-                                                 urllib.quote(self.url_title))
+        list_item.setProperty('mimetype', 'video/x-msvideo')
+        from pluginhandler import PluginHandler
+        ph = PluginHandler()
+        url = ph.http_to_plugin_url(self.link)
         is_folder = False
         return (url, list_item, is_folder)    
     
@@ -51,17 +47,46 @@ class Video:
                                     + "[/I][/LIGHT]" for tag in self.tags])
     
     
-    def _set_url_title(self):
-        """
-        Sets the title of the video as in the url.
-        This is needed to resolve the video.
-        
-        """
-        self.url_title = self.link.split('/')[-2]
-    
-    
     def _get_video_id(self, downloader):
         video_page = downloader.get(self.link).content
         bs = BeautifulSoup(video_page)
         return re.search('wistia_async_([0-9a-z]*) ', str(bs)).group(1)
 
+
+class VideoBlocksHandler:
+    
+    
+    def __init__(self, html_code):
+        self._html_code = html_code
+        
+        
+    def get_video_blocks(self):
+        """
+        Extracts the video block from the html code as used on
+        the romwod site
+        
+        :param html: str
+        """
+        html_parser = BeautifulSoup(self._html_code)
+        return html_parser.body.findAll(
+            'div', attrs={'class':re.compile(r"video-block\s.*")})
+#         video_blocks = []
+#         for block in blocks:
+#             video_blocks.append(block)
+#         return video_blocks
+    
+    
+    def get_videos(self):
+        """
+        Extracts each html video block and instanciates
+        a Video for it. Returns all videos in a list.
+        
+        :param video_blocks: str
+        """
+        videos = []
+        for vid_blk in self.get_video_blocks():
+            video = Video(vid_blk)
+            videos.append(video)
+        return videos
+
+        
