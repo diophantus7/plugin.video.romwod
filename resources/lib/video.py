@@ -14,13 +14,12 @@ class Video:
     def __init__(self, video_block):
         bs = BeautifulSoup(str(video_block),
                            convertEntities=BeautifulSoup.HTML_ENTITIES)
-        self.title = unicode(bs.find('span',attrs={'class':'video-name'}).text)
-        self.duration = bs.find('div',attrs={'class':'video-duration'}).text
-        self.description = bs.find('p',attrs={'class':'video-description'}).text
-        vid_tags = bs.findAll('li')
-        self.tags = [tag.text for tag in vid_tags]
-        self.link = video_block.a.get('href')
-        self.thumbnail = video_block.img.get('data-src')
+        self.title = video_block['video']['title']
+        self.duration = video_block['video']['duration_in_seconds']
+        self.description = video_block['video']['description']
+        self.tags = [tag['content'] for tag in video_block['video']['poses']]
+        self.link = WORKOUTS_URL + video_block['video']['slug']
+        self.thumbnail = video_block['video']['thumbnail']
 
     
     def get_tags(self):
