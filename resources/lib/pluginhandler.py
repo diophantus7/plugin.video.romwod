@@ -80,6 +80,9 @@ class PluginHandler(object):
     def add_action_to_url(self, url, action):
         return '%s?action=%s' % (url, action)
     
+    def add_query_to_url(self, query):
+        return self._url + urllib.urlencode(query)
+        
     def get_new_url(self, path = '/', query = ''):
         lreplaced = list(self._parsed)
         lreplaced[2] = '/' + path.strip('/') + '/' if path is not '/' else path
@@ -260,7 +263,7 @@ class PluginHandler(object):
         
         :param todays_video: Video
         """
-        todays_video_item = todays_video.get_list_item()
+        todays_video_item = VideoItem(todays_video)
         todays_video_item[1].setLabel(label="Today's WOD | [I]%s[/I]"
                                       % todays_video.title)
         listing = [todays_video_item]  

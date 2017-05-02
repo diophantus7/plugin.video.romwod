@@ -56,8 +56,10 @@ class RomwodPage:
         :param html: str
         """
         parsed_html = BeautifulSoup(self._content)
-        return parsed_html.body.findAll(
-            'div', attrs={'class':re.compile(r"video-block\s.*")})
+        video_blocks_dict = json.loads(bs.find('div', {'data-react-class':'WeeklySchedule'})['data-react-props'])
+        return video_blocks_dict['schedule']['scheduled_workouts']
+        #return parsed_html.body.findAll(
+            #'div', attrs={'class':re.compile(r"video-block\s.*")})
     
     def extract_selection_form(self):
         """
@@ -137,3 +139,5 @@ class Dashboard(RomwodPage):
     def get_dashboard_fanart(self):
         fanart = FANART_BASE + 'dash-bg-' + get_daytime() + '.jpg'
         return fanart
+    
+    

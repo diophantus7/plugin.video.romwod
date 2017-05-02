@@ -60,7 +60,7 @@ class DownloadHandler:
         username = ph.get_username()
         password = ph.get_password()
         if username and password:
-            login_data = dict(amember_login = username, amember_pass = password)
+            login_data = dict(email = username, password = password)
             dashboard = self.session.post(LOGIN_URL, data=login_data)
             if self._incorrect_login_credentials(dashboard.content):
                 raise LoginError("Please check username and password")

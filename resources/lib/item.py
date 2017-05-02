@@ -4,9 +4,9 @@ import os
 import urllib
 import xbmc
 
+from constants import *
 
-CLEAR_HISTORY = "Clear History"
-REMOVE_ENTRY = "Remove entry"
+
 
 class VideoItem(tuple):
     
@@ -21,6 +21,11 @@ class VideoItem(tuple):
         from pluginhandler import PluginHandler
         ph = PluginHandler()
         url = ph.http_to_plugin_url(video.link)
+        context_menu_items = [(ADD_FAVORITES,
+                               'XBMC.RunPlugin(%s)' % ph.append_path('clear'))]
+        context_menu_items.append(
+            (REMOVE_FAVORITES,
+             'XBMC.RunPlugin(%s?q=%s)' % (ph.append_path('remove'), 'remove')))
         return tuple.__new__(cls, (url, item, False))
 
 
