@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.romwod"
-version="0.2.4"
+version="0.3.0"
 name="ROMWOD"
 provider-name="stef_schmid">
 <requires>
@@ -13,6 +13,5 @@ provider-name="stef_schmid">
   <summary lang="en">Watch ROMWOD videos on kodi</summary>
   <description lang="en">OPTIMIZE RANGE OF MOTION. Daily online Yin stretching routines for athletes. Based on ancient Kung Fu techniques that strengthen and open joints resulting in optimal range of motion.
   </description>
-  <!--<disclaimer lang="en">Free sample videos are provided by www.vidsplay.com.</disclaimer>-->
 </extension>
 </addon>

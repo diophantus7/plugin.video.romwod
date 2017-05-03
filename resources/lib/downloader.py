@@ -66,8 +66,8 @@ class DownloadHandler:
                 raise LoginError("Please check username and password")
             elif self._signed_in(dashboard.content, username):
                 return
-            else:
-                raise Exception()
+#             else:
+#                 raise Exception()
         else:
             raise LoginError("Please specify username and password in settings")
 

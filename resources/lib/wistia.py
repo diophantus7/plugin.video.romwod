@@ -1,6 +1,7 @@
 import re
 import requests
 import xbmc
+import json
 
 try: 
         from BeautifulSoup import BeautifulSoup
@@ -27,7 +28,9 @@ class WistiaExtractor:
         
     def _extract_video_id(self):
         bs = BeautifulSoup(self.html_page)
-        return re.search('wistia_async_([0-9a-z]*) ', str(bs)).group(1)
+        video_block = json.loads(bs.find('div', {'data-react-class':'VideoView'})['data-react-props'])
+        return video_block['video']['external_id']
+        #return re.search('wistia_async_([0-9a-z]*) ', str(bs)).group(1)
     
     
     def _download_json(self):

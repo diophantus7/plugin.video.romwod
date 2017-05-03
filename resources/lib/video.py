@@ -8,6 +8,8 @@ try:
 except ImportError:
         from bs4 import BeautifulSoup
         
+from constants import *
+        
     
 class Video:
 
@@ -19,7 +21,8 @@ class Video:
         self.description = video_block['video']['description']
         self.tags = [tag['content'] for tag in video_block['video']['poses']]
         self.link = WORKOUTS_URL + video_block['video']['slug']
-        self.thumbnail = video_block['video']['thumbnail']
+        self.thumbnail = video_block['video']['thumbnail']['url']
+        #self.wistia_id = video_block['video']['thumbnail']['external_id']
 
     
     def get_tags(self):

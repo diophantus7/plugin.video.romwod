@@ -1,6 +1,7 @@
 import requests
 import re
 import urlparse
+import json
 from collections import OrderedDict
 
 try: 
@@ -56,7 +57,7 @@ class RomwodPage:
         :param html: str
         """
         parsed_html = BeautifulSoup(self._content)
-        video_blocks_dict = json.loads(bs.find('div', {'data-react-class':'WeeklySchedule'})['data-react-props'])
+        video_blocks_dict = json.loads(self._parser.find('div', {'data-react-class':'WeeklySchedule'})['data-react-props'])
         return video_blocks_dict['schedule']['scheduled_workouts']
         #return parsed_html.body.findAll(
             #'div', attrs={'class':re.compile(r"video-block\s.*")})

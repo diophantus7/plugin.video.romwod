@@ -1,4 +1,4 @@
-HOST = "romwod.com"
+HOST = "app.romwod.com"
 BASE_URL = "https://app.romwod.com/"
 WORKOUTS_URL = BASE_URL + "workout/"
 WOD_URL = BASE_URL + "wod/"

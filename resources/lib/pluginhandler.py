@@ -103,7 +103,10 @@ class PluginHandler(object):
         title of the video as in the url. See play_video
         :param title: str
         """
+        xbmc.log("hallo")
+        print "test"
         video_page = RomwodPage(self.get_http_url(), needsLogin=True)
+        xbmc.log(self.get_http_url())
     
         we = WistiaExtractor(video_page.get_content(), self.get_video_format())
         try:
@@ -267,23 +270,25 @@ class PluginHandler(object):
         todays_video_item[1].setLabel(label="Today's WOD | [I]%s[/I]"
                                       % todays_video.title)
         listing = [todays_video_item]  
-        db = Dashboard()
-        #listing.extend(db.get_dashboard_items())
-        for entry in db.get_dashboard_entries():
-            listing.append(self.get_dashboard_item(entry))
-            
-        listing.append(FolderItem(PAST_WODS, self.get_new_url('all-wods')))
-        listing.append(FolderItem(SEARCH,
-                                  self.get_new_url(path='search'),
-                                  os.path.join(self.img_path,
-                                               "searchicon.png")))
-        listing.append(FolderItem(FILTER,
-                                  self.get_new_url('filter'),
-                                  os.path.join(self.img_path,
-                                               "filtericon.png")))
         
-        for item in listing:
-            item[1].setArt({'fanart':db.get_dashboard_fanart() + HD_CROP})
+        #TODO uncomment this block
+#         db = Dashboard()
+#         #listing.extend(db.get_dashboard_items())
+#         for entry in db.get_dashboard_entries():
+#             listing.append(self.get_dashboard_item(entry))
+#             
+#         listing.append(FolderItem(PAST_WODS, self.get_new_url('all-wods')))
+#         listing.append(FolderItem(SEARCH,
+#                                   self.get_new_url(path='search'),
+#                                   os.path.join(self.img_path,
+#                                                "searchicon.png")))
+#         listing.append(FolderItem(FILTER,
+#                                   self.get_new_url('filter'),
+#                                   os.path.join(self.img_path,
+#                                                "filtericon.png")))
+#         
+#         for item in listing:
+#             item[1].setArt({'fanart':db.get_dashboard_fanart() + HD_CROP})
         
         xbmcplugin.addDirectoryItems(self._handle, listing, len(listing))
         xbmcplugin.endOfDirectory(self._handle)
