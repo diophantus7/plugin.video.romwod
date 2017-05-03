@@ -16,13 +16,13 @@ class Video:
     def __init__(self, video_block):
         bs = BeautifulSoup(str(video_block),
                            convertEntities=BeautifulSoup.HTML_ENTITIES)
-        self.title = video_block['video']['title']
-        self.duration = video_block['video']['duration_in_seconds']
-        self.description = video_block['video']['description']
-        self.tags = [tag['content'] for tag in video_block['video']['poses']]
-        self.link = WORKOUTS_URL + video_block['video']['slug']
-        self.thumbnail = video_block['video']['thumbnail']['url']
-        #self.wistia_id = video_block['video']['thumbnail']['external_id']
+        self.title = video_block['title']
+        self.duration = video_block['duration_in_seconds']
+        self.description = video_block['description']
+        self.tags = [tag['content'] for tag in video_block['poses']]
+        self.link = WORKOUTS_URL + video_block['slug']
+        self.thumbnail = video_block['thumbnail']['url']
+        #self.wistia_id = video_block['thumbnail']['external_id']
 
     
     def get_tags(self):
@@ -39,24 +39,24 @@ class Video:
 class VideoBlocksHandler:
     
     
-    def __init__(self, html_code):
-        self._html_code = html_code
+    def __init__(self, video_blocks):
+        self._video_blocks = video_blocks
         
         
-    def get_video_blocks(self):
-        """
-        Extracts the video block from the html code as used on
-        the romwod site
-        
-        :param html: str
-        """
-        html_parser = BeautifulSoup(self._html_code)
-        return html_parser.body.findAll(
-            'div', attrs={'class':re.compile(r"video-block\s.*")})
-#         video_blocks = []
-#         for block in blocks:
-#             video_blocks.append(block)
-#         return video_blocks
+#     def get_video_blocks(self):
+#         """
+#         Extracts the video block from the html code as used on
+#         the romwod site
+#         
+#         :param html: str
+#         """
+#         html_parser = BeautifulSoup(self._html_code)
+#         return html_parser.body.findAll(
+#             'div', attrs={'class':re.compile(r"video-block\s.*")})
+# #         video_blocks = []
+# #         for block in blocks:
+# #             video_blocks.append(block)
+# #         return video_blocks
     
     
     def get_videos(self):
@@ -67,7 +67,7 @@ class VideoBlocksHandler:
         :param video_blocks: str
         """
         videos = []
-        for vid_blk in self.get_video_blocks():
+        for vid_blk in self._video_blocks:
             video = Video(vid_blk)
             videos.append(video)
         return videos

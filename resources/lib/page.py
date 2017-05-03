@@ -57,10 +57,13 @@ class RomwodPage:
         :param html: str
         """
         parsed_html = BeautifulSoup(self._content)
-        video_blocks_dict = json.loads(self._parser.find('div', {'data-react-class':'WeeklySchedule'})['data-react-props'])
-        return video_blocks_dict['schedule']['scheduled_workouts']
-        #return parsed_html.body.findAll(
-            #'div', attrs={'class':re.compile(r"video-block\s.*")})
+        video_dict = self._parser.find('div', {'data-react-class':'WeeklySchedule'})
+        if video_dict is not None:
+            video_blocks = [video_block['video'] for video_block in json.loads(video_dict['data-react-props'])['schedule']['scheduled_workouts']]
+        else:
+            video_dict = self._parser.find('div', {'data-react-class':'SearchGrid'})
+            video_blocks = json.loads(json.loads(video_dict['data-react-props'])['items'])
+        return video_blocks
     
     def extract_selection_form(self):
         """
@@ -101,7 +104,7 @@ class RomwodPage:
         :param site: str
         """
         bs = BeautifulSoup(self._content)
-        next = bs.find('a', attrs={'class':'nextpostslink'})
+        next = bs.find('a', attrs={'class':'next always-show'})
         if next:
             return next['href']
         else:
@@ -110,13 +113,14 @@ class RomwodPage:
 
 class Dashboard(RomwodPage):
     
-    def __init__(self, url = DASHBOARD_URL, needsLogin = False):
+    def __init__(self, url = BASE_URL, needsLogin = False):
         RomwodPage.__init__(self, url, needsLogin)
         
     def get_dashboard_entries(self):
-        return self._parser.find(
-            'div', {'class':'container','id':'dash-options'}).findAll(
-            'div', {'class':re.compile('dash-option\s')})
+#         return self._parser.find(
+#             'div', {'class':'container','id':'dash-options'}).findAll(
+#             'div', {'class':re.compile('dash-option\s')})
+        return self._parser.findAll('div', {'class':'card_inner'})
 #     
 #         listing = []
 #         

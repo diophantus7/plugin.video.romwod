@@ -139,7 +139,7 @@ class PluginHandler(object):
         url = self.get_http_url()
 
         page = RomwodPage(url, False)
-        vh = VideoBlocksHandler(page.get_content())
+        vh = VideoBlocksHandler(page.extract_video_blocks())
         videos = vh.get_videos()
         
         listing = []
@@ -157,12 +157,11 @@ class PluginHandler(object):
         if next is not None:
             listing.append(FolderItem(
                 NEXT_PAGE_LABEL,
-                self.add_action_to_url(self.http_to_plugin_url(next), 'list'
+                self.add_action_to_url(self._url + next, 'list'
                 )))
     
         xbmcplugin.addDirectoryItems(self._handle, listing, len(listing))
         xbmcplugin.endOfDirectory(self._handle)
-
 
 
     def search(self):
@@ -253,8 +252,9 @@ class PluginHandler(object):
         lparsed = list(parsed)
         lparsed[2] = option_block.a.get('href')
         #lparsed[4] = 'action=list'
-        item = xbmcgui.ListItem(label=option_block.h3.text)
-        return FolderItem(option_block.h3.text,
+        #item = xbmcgui.ListItem(label=option_block.h4.text)
+        xbmc.log(urlparse.urlunparse(lparsed))
+        return FolderItem(option_block.h4.text,
                           urlparse.urlunparse(lparsed),
                           option_block.img.get('src'))
 
@@ -271,12 +271,11 @@ class PluginHandler(object):
                                       % todays_video.title)
         listing = [todays_video_item]  
         
-        #TODO uncomment this block
-#         db = Dashboard()
-#         #listing.extend(db.get_dashboard_items())
-#         for entry in db.get_dashboard_entries():
-#             listing.append(self.get_dashboard_item(entry))
-#             
+        db = Dashboard()
+        #listing.extend(db.get_dashboard_items())
+        for entry in db.get_dashboard_entries():
+            listing.append(self.get_dashboard_item(entry))
+             
 #         listing.append(FolderItem(PAST_WODS, self.get_new_url('all-wods')))
 #         listing.append(FolderItem(SEARCH,
 #                                   self.get_new_url(path='search'),
@@ -286,7 +285,7 @@ class PluginHandler(object):
 #                                   self.get_new_url('filter'),
 #                                   os.path.join(self.img_path,
 #                                                "filtericon.png")))
-#         
+#          
 #         for item in listing:
 #             item[1].setArt({'fanart':db.get_dashboard_fanart() + HD_CROP})
         
