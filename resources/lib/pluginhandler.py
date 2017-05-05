@@ -9,6 +9,7 @@ import urlparse
 import datetime
 import requests
 import re
+import json
 
 try: 
         from BeautifulSoup import BeautifulSoup
@@ -103,8 +104,6 @@ class PluginHandler(object):
         title of the video as in the url. See play_video
         :param title: str
         """
-        xbmc.log("hallo")
-        print "test"
         video_page = RomwodPage(self.get_http_url(), needsLogin=True)
         xbmc.log(self.get_http_url())
     
@@ -170,9 +169,8 @@ class PluginHandler(object):
         listing.append(FolderItem(NEW_SEARCH, self.append_path('input')))
         with SearchHistory() as history:
             for entry in history.get_entries():
-                query = {'s':entry.encode('ascii', 'xmlcharrefreplace'),
-                         'post_type':'workouts'}
-                listing.append(HistoryItem(entry, self.get_new_url(query = urllib.urlencode(query))))
+                query = {'q':entry.encode('ascii', 'xmlcharrefreplace')}
+                listing.append(HistoryItem(entry, self.get_new_url(path = 'search', query = urllib.urlencode(query))))
             
         xbmcplugin.addDirectoryItems(self._handle, listing, len(listing))
         xbmcplugin.endOfDirectory(self._handle)
@@ -191,9 +189,10 @@ class PluginHandler(object):
         if search_string is not '':
             with SearchHistory() as history:
                 history.update(search_string)
-        query = {'s':search_string, 'post_type':'workouts'}
+        #query = {'s':search_string, 'post_type':'workouts'}
+        query = {'q':search_string}
         xbmc.executebuiltin('Container.Update(%s)'
-                            % self.get_new_url(query = urllib.urlencode(query)))
+                            % self.get_new_url(path = 'search', query = urllib.urlencode(query)))
     
     
     def select(self):
@@ -211,14 +210,14 @@ class PluginHandler(object):
         #top_opts = [key for key in options]
         selection = {}
         for key in options:
-            opt = [x[0] for x in options[key]]
+            opt = [value for value in options[key]]
             selection[key] = dialog.select(key, opt)
     
         query = {}
         query_string = ''
         for key in options:
             if selection[key] is not -1:
-                opt = options[key][selection[key]]
+                opt = [value for value in options[key]][selection[key]]
                 query[opt[1]] = opt[0].replace('+','').replace(' ', '-')
                 query_string = ' + '.join(filter(None, [query_string, opt[0]]))
         
@@ -228,7 +227,7 @@ class PluginHandler(object):
     #             history.update(query_string)
     
         xbmc.executebuiltin('Container.Update(%s)'
-                            % self.get_new_url(query = urllib.urlencode(query)))
+                            % self.get_new_url(path = 'search', query = urllib.urlencode(query)))
     
     
     def list_wod_schedule(self):
@@ -236,9 +235,10 @@ class PluginHandler(object):
         bs = BeautifulSoup(page.get_content(),
                            convertEntities=BeautifulSoup.HTML_ENTITIES)
         listing = []
-        for week in bs.findAll('a', {'class':'past-wod'}):
+        schedule_archive = json.loads(bs.find('div',  {'data-react-class':'ScheduleArchive'})['data-react-props'])['schedules']
+        for week in schedule_archive:
             listing.append(
-                FolderItem(week.text, self.add_action_to_url(self.http_to_plugin_url(week.get('href')), 'list'),
+                FolderItem(week['title'], self.get_new_url("wod/" + week['slug']),
                                       FANART_BASE + "members-titlebar-bg17.jpg"
                                       + CROP_256
                                       ))
@@ -253,7 +253,6 @@ class PluginHandler(object):
         lparsed[2] = option_block.a.get('href')
         #lparsed[4] = 'action=list'
         #item = xbmcgui.ListItem(label=option_block.h4.text)
-        xbmc.log(urlparse.urlunparse(lparsed))
         return FolderItem(option_block.h4.text,
                           urlparse.urlunparse(lparsed),
                           option_block.img.get('src'))
@@ -276,18 +275,18 @@ class PluginHandler(object):
         for entry in db.get_dashboard_entries():
             listing.append(self.get_dashboard_item(entry))
              
-#         listing.append(FolderItem(PAST_WODS, self.get_new_url('all-wods')))
-#         listing.append(FolderItem(SEARCH,
-#                                   self.get_new_url(path='search'),
-#                                   os.path.join(self.img_path,
-#                                                "searchicon.png")))
+        listing.append(FolderItem(PAST_WODS, self.get_new_url('all-wods')))
+        listing.append(FolderItem(SEARCH,
+                                  self.get_new_url(path='search'),
+                                  os.path.join(self.img_path,
+                                               "searchicon.png")))
 #         listing.append(FolderItem(FILTER,
 #                                   self.get_new_url('filter'),
 #                                   os.path.join(self.img_path,
 #                                                "filtericon.png")))
-#          
-#         for item in listing:
-#             item[1].setArt({'fanart':db.get_dashboard_fanart() + HD_CROP})
+          
+        for item in listing:
+            item[1].setArt({'fanart':db.get_dashboard_fanart() + HD_CROP})
         
         xbmcplugin.addDirectoryItems(self._handle, listing, len(listing))
         xbmcplugin.endOfDirectory(self._handle)
@@ -318,14 +317,16 @@ class PluginHandler(object):
 
         if self._path is not '/' or self._query is not '':
             path = self._path.strip('/').split('/')
-            xbmc.log(self._url)
             if path[0] == 'workout' and len(path) > 1:
                 self.play_video()
             elif path[0] == 'all-wods':
                 self.list_wod_schedule()
             elif path[0] == 'search':
                 if len(path) == 1:
-                    self.search()
+                    if self._query == '':
+                        self.search()
+                    else:
+                        self.list_wods()
                 elif path[1] == 'input':
                     self.new_search()
                 elif path[1] == 'clear':

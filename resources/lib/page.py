@@ -85,13 +85,20 @@ class RomwodPage:
         """
         form = BeautifulSoup(self.extract_selection_form(),
                              convertEntities=BeautifulSoup.HTML_ENTITIES)
-        node = form.div.ul.li
-        opt_dict = OrderedDict()
-        while node.h4 is not None:
-            opt_dict[node.h4.text] = [(x.text, x.input['name'][2:-2])
-                                      for x in node.findAll('li')]
-            node = node.nextSibling
-        return opt_dict
+        options = OrderedDict()
+        for filterColumn in form.findAll('div', {'class':re.compile('filterColumn.*')}):
+            options[filterColumn.h6.text]['options'] = OrderedDict()
+            options[filterColumn.h6.text]['slug'] = filterColumn.find('a')['href'].split('?')[1].split('=')[0]
+            for opt in filterColumn.findAll('a'):
+                options[filterColumn.h6.text][opt['href'].split('=')[1]] = opt.text
+                
+#         node = form.div.ul.li
+#         opt_dict = OrderedDict()
+#         while node.h4 is not None:
+#             opt_dict[node.h4.text] = [(x.text, x.input['name'][2:-2])
+#                                       for x in node.findAll('li')]
+#             node = node.nextSibling
+        return options
 
 
     def next_page(self):
