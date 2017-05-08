@@ -22,7 +22,7 @@ class Video:
         self.tags = [tag['content'] for tag in video_block['poses']]
         self.link = WORKOUTS_URL + video_block['slug']
         self.thumbnail = video_block['thumbnail']['url']
-        #self.wistia_id = video_block['thumbnail']['external_id']
+        self.wistia_id = video_block['external_id']
 
     
     def get_tags(self):
