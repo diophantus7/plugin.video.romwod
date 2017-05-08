@@ -20,6 +20,7 @@ class RomwodPage:
     
     def __init__(self, url, needsLogin):
         self._url = url
+        needsLogin = False
         if needsLogin:
             session = DownloadHandler()
         else:

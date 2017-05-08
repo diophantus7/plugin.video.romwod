@@ -20,9 +20,9 @@ class ResolveError(Exception):
 
 class WistiaExtractor:
     
-    def __init__(self, html_page, format):
-        self.html_page = html_page
-        self.video_id = self._extract_video_id()
+    def __init__(self, video_id, format):
+        #self.html_page = html_page
+        self.video_id = video_id
         self._format = format
     
         

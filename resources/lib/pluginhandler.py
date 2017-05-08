@@ -104,10 +104,11 @@ class PluginHandler(object):
         title of the video as in the url. See play_video
         :param title: str
         """
-        video_page = RomwodPage(self.get_http_url(), needsLogin=True)
-        xbmc.log(self.get_http_url())
-    
-        we = WistiaExtractor(video_page.get_content(), self.get_video_format())
+        #video_page = RomwodPage(self.get_http_url(), needsLogin=False)
+        #xbmc.log(self.get_http_url())
+        video_id = self._path.split('/')[-1]
+        
+        we = WistiaExtractor(video_id, self.get_video_format())
         try:
             return we.get_video_url()
         except ResolveError as err:
@@ -125,6 +126,8 @@ class PluginHandler(object):
         :param title: str
         """
         url = self.resolve()
+        xbmc.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeey")
+        xbmc.log(url)
         play_item = xbmcgui.ListItem(path=url)
         xbmcplugin.setResolvedUrl(self._handle, True, listitem=play_item)
     
@@ -299,7 +302,7 @@ class PluginHandler(object):
         lists the content of the dashboard.
         
         """
-        wod_page = RomwodPage(WOD_URL, needsLogin=True)
+        wod_page = RomwodPage(WOD_URL, needsLogin=False)
 #         dh = DownloadHandler()
 #         week_view = dh.get(WOD_URL)
         
@@ -314,10 +317,14 @@ class PluginHandler(object):
         right function
     
         """
-
+        xbmc.log("halloooooooooooooooooooooooooooo")
+        xbmc.log(self._path)
+        
         if self._path is not '/' or self._query is not '':
             path = self._path.strip('/').split('/')
+            xbmc.log("halloooooooooooooooooooooooooooo")
             if path[0] == 'workout' and len(path) > 1:
+                xbmc.log("halloooooooooooooooooooooooooooo")
                 self.play_video()
             elif path[0] == 'all-wods':
                 self.list_wod_schedule()

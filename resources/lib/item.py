@@ -20,7 +20,9 @@ class VideoItem(tuple):
         #list_item.setProperty('mimetype', 'video/x-msvideo')
         from pluginhandler import PluginHandler
         ph = PluginHandler()
-        url = ph.http_to_plugin_url(video.link)
+        #url = ph.http_to_plugin_url(video.link)
+        url = ph.http_to_plugin_url(WORKOUTS_URL + video.wistia_id)
+        xbmc.log(url)
         context_menu_items = [(ADD_FAVORITES,
                                'XBMC.RunPlugin(%s)' % ph.append_path('clear'))]
         context_menu_items.append(
