@@ -302,6 +302,8 @@ class PluginHandler(object):
         lists the content of the dashboard.
         
         """
+        now = datetime.datetime.now()
+        WOD_URL = "https://app.romwod.com/wod?user_date=" + now.strftime("%Y-%m-%d")
         wod_page = RomwodPage(WOD_URL, needsLogin=False)
 #         dh = DownloadHandler()
 #         week_view = dh.get(WOD_URL)
