@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.romwod"
+<addon id="plugin.video.romwod-free"
 version="0.3.1"
-name="ROMWOD"
+name="ROMWOD free"
 provider-name="stef_schmid">
 <requires>
   <import addon="xbmc.python" version="2.19.0"/>
+  <import addon="script.module.requests" version="2.12.4"/>
+  <import addon="script.module.beautifulsoup" version="3.0.8"/>
 </requires>
 <extension point="xbmc.python.pluginsource" library="main.py">
   <provides>video</provides>
