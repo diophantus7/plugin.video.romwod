@@ -11,7 +11,7 @@ except ImportError:
 
 _JSON_URL = "http://fast.wistia.com/embed/medias/%s.json"
 _IFRAME_URL = "http://fast.wistia.net/embed/iframe/%s"
-
+#_IFRAME_URL = "https://embedwistia-a.akamaihd.net/deliveries/%s"
 
 class ResolveError(Exception):
     def __init__(self, message):
@@ -42,6 +42,8 @@ class WistiaExtractor:
     
     def get_video_url(self):
         json_data = self._download_json()
+        # 17.4.2018 json_data['media']['assets'][0]['url'] is the standard today
+        return json_data['media']['assets'][0]['url']
         try:
             url = next(d['url'] for d in json_data['media']['unnamed_assets']
                     if d['display_name'] == self._format and d['ext'] == 'm3u8')

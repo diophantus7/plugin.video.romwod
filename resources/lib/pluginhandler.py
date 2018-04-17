@@ -107,7 +107,12 @@ class PluginHandler(object):
         #video_page = RomwodPage(self.get_http_url(), needsLogin=False)
         #xbmc.log(self.get_http_url())
         video_id = self._path.split('/')[-1]
+        #video_id = "buo8a1mu83"
+        # Look into external_id and short_external_id
+        # curl "http://fast.wistia.net/oembed?url=https%3A%2F%2Fsupport.wistia.com%2Fmedias%2Fnb4ymq0ugz&embedType=iframe"
+        # where nb4ymq0ugz is the external_id
         
+        #xbmc.log(self._path)
         we = WistiaExtractor(video_id, self.get_video_format())
         try:
             return we.get_video_url()
